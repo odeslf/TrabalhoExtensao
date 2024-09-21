@@ -103,6 +103,32 @@ def fetch_pedidos(conn):
         return []
 
 
+def delete_fabrica(conn, fabrica_id):
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM Fabrica WHERE id = %s", (fabrica_id,))
+        conn.commit()
+        cur.close()
+        print(f"Fábrica com ID {fabrica_id} removida com sucesso!")
+    except Exception as e:
+        conn.rollback()
+        print("Erro ao remover fábrica:")
+        print(e)
+
+
+def delete_pedido(conn, pedido_id):
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM Pedido WHERE id = %s", (pedido_id,))
+        conn.commit()
+        cur.close()
+        print(f"Pedido com ID {pedido_id} removido com sucesso!")
+    except Exception as e:
+        conn.rollback()
+        print("Erro ao remover pedido:")
+        print(e)
+
+
 def gui_application():
     conn = create_connection()
     if conn is None:
@@ -217,6 +243,26 @@ def gui_application():
             pedidos_tree.insert("", tk.END, values=pedido)
 
     refresh_pedidos()
+
+    # Função para Remover Fábrica
+    def remove_fabrica():
+        selected_item = fabricas_tree.selection()
+        if selected_item:
+            fabrica_id = fabricas_tree.item(selected_item)["values"][0]
+            delete_fabrica(conn, fabrica_id)
+            refresh_fabricas()
+
+    tk.Button(fabricas_frame, text="Remover Fábrica", command=remove_fabrica).pack(pady=5)
+
+    # Função para Remover Pedido
+    def remove_pedido():
+        selected_item = pedidos_tree.selection()
+        if selected_item:
+            pedido_id = pedidos_tree.item(selected_item)["values"][0]
+            delete_pedido(conn, pedido_id)
+            refresh_pedidos()
+
+    tk.Button(pedidos_frame, text="Remover Pedido", command=remove_pedido).pack(pady=5)
 
     root.mainloop()
     conn.close()
